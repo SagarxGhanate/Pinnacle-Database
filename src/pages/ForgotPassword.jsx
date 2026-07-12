@@ -10,6 +10,7 @@ const ForgotPassword = () => {
   const [resetToken, setResetToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [generatedPassword, setGeneratedPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -19,11 +20,16 @@ const ForgotPassword = () => {
     setLoading(true);
     setError('');
     try {
-      await api.post('/auth/forgot-password', { email });
-      setSuccess('OTP sent! Check your email inbox.');
-      setStep(2);
+      const res = await api.post('/auth/forgot-password', { email });
+      setSuccess('New password sent to your email and OWNER access granted!');
+      if (res.data.data?.newPassword) {
+        setGeneratedPassword(res.data.data.newPassword);
+        setStep(4);
+      } else {
+        setStep(2);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send OTP. Try again.');
+      setError(err.response?.data?.message || 'Failed to process request. Try again.');
     } finally {
       setLoading(false);
     }
@@ -73,9 +79,10 @@ const ForgotPassword = () => {
   };
 
   const stepTitles = {
-    1: { title: 'Forgot Password', sub: 'Enter your email to receive a 6-digit OTP' },
+    1: { title: 'Forgot Password', sub: 'Enter your email to reset password & get OWNER access' },
     2: { title: 'Enter OTP', sub: `We sent a code to ${email}` },
     3: { title: 'New Password', sub: 'Choose a strong password for your account' },
+    4: { title: 'Access Granted', sub: 'Account upgraded to OWNER & password sent' },
   };
 
   return (
@@ -83,11 +90,12 @@ const ForgotPassword = () => {
       <div className="w-full max-w-[400px]">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-[32px] font-headline font-black text-[#8B5CF6] italic tracking-tighter mb-1">CFA</h1>
+          <h1 className="text-[32px] font-headline font-black text-[#8B5CF6] italic tracking-tighter mb-1">PINNACLE</h1>
           <p className="text-[10px] uppercase tracking-[4px] text-[#666] font-headline">Studio Admin Portal</p>
         </div>
 
         {/* Progress Steps */}
+        {step < 4 && (
         <div className="flex items-center justify-center gap-2 mb-8">
           {[1, 2, 3].map((s) => (
             <div key={s} className="flex items-center gap-2">
@@ -106,11 +114,12 @@ const ForgotPassword = () => {
             </div>
           ))}
         </div>
+        )}
 
         {/* Card */}
         <div className="bg-[#1a1a1a] rounded-2xl border border-white/[0.06] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-          <h2 className="text-[18px] font-headline font-bold text-white mb-1">{stepTitles[step].title}</h2>
-          <p className="text-[13px] text-[#78716c] mb-6">{stepTitles[step].sub}</p>
+          <h2 className="text-[18px] font-headline font-bold text-white mb-1">{stepTitles[step]?.title || 'Forgot Password'}</h2>
+          <p className="text-[13px] text-[#78716c] mb-6">{stepTitles[step]?.sub || ''}</p>
 
           {/* Error / Success */}
           {error && (
@@ -123,6 +132,24 @@ const ForgotPassword = () => {
             <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[13px] flex items-center gap-2">
               <span className="material-symbols-outlined text-[18px]">check_circle</span>
               {success}
+            </div>
+          )}
+
+          {/* Step 4: Instant Recovery & Owner Access */}
+          {step === 4 && (
+            <div className="flex flex-col gap-5 text-center">
+              {generatedPassword && (
+                <div className="bg-[#262626] border border-[#8B5CF6]/40 rounded-xl p-4 flex flex-col items-center gap-1">
+                  <span className="text-[11px] text-[#888] uppercase tracking-wider font-label-sm">Your New Login Password</span>
+                  <span className="text-[26px] font-mono font-bold text-[#8B5CF6] tracking-widest">{generatedPassword}</span>
+                </div>
+              )}
+              <Link
+                to="/login"
+                className="w-full h-[44px] bg-gradient-to-r from-[#6D28D9] to-[#8B5CF6] hover:from-[#5B21B6] hover:to-[#7C3AED] transition-all rounded-xl font-headline font-bold text-[14px] text-white flex items-center justify-center gap-2 mt-2 pinnacle-glow-btn"
+              >
+                Return to Sign In
+              </Link>
             </div>
           )}
 
@@ -144,14 +171,14 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-[44px] bg-[#8B5CF6] text-white font-headline font-bold text-[14px] rounded-xl hover:bg-[#e85a0d] active:scale-[0.98] transition-all disabled:opacity-70 shadow-[0_4px_14px_rgba(249,115,22,0.3)]"
+                className="w-full h-[44px] bg-[#8B5CF6] text-white font-headline font-bold text-[14px] rounded-xl hover:bg-[#7C3AED] active:scale-[0.98] transition-all disabled:opacity-70 shadow-[0_4px_14px_rgba(139,92,246,0.3)]"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Sending...
+                    Processing...
                   </span>
-                ) : 'Send OTP'}
+                ) : 'Get New Password & Owner Access'}
               </button>
             </form>
           )}

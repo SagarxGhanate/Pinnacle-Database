@@ -162,7 +162,12 @@ const Login = () => {
                   disabled={showSuccess}
                 />
               </div>
-              {errors.password && <span className="text-red-500 text-xs mt-1">{errors.password.message}</span>}
+              <div className="flex justify-between items-center mt-1">
+                {errors.password ? <span className="text-red-500 text-xs">{errors.password.message}</span> : <span></span>}
+                <Link to="/forgot-password" className="font-body-md text-[13px] text-[#8B5CF6] hover:text-[#A78BFA] transition-colors font-medium">
+                  Forgot password?
+                </Link>
+              </div>
             </div>
             
             <button 
@@ -211,9 +216,6 @@ const Login = () => {
                 Sign Up
               </Link>
             </div>
-            <a className="font-body-md text-[13px] text-[#6B6B80] hover:text-[#8B5CF6] transition-colors" href="#">
-              Forgot password?
-            </a>
           </div>
         </div>
 
