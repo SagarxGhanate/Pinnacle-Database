@@ -67,7 +67,8 @@ const Login = () => {
         }, 1800);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Google login failed. Please try again.');
+      const msg = err.response?.data?.message || (err.code === 'ERR_NETWORK' ? 'Cannot reach backend server. Please make sure Render is awake.' : 'Google login failed. Please try again.');
+      setError(msg);
       setLoading(false);
     }
   };
