@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://cfa-backend-56s1.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://cfa-studio-portal.onrender.com/api',
 });
 
 // Attach JWT token to every request
